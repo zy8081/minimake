@@ -4,14 +4,14 @@
 #include "pretreatment.h"
 
 
-char** pretreatment(int flag)
+data* pretreatment(int flag)
 {
     FILE *file1=fopen("./store","r");
     FILE *file2;
     char str[200];
     char *p;
     int len,i,j;
-    char **result;
+    data *result;
 
     if (file1==NULL)
     {
@@ -19,22 +19,20 @@ char** pretreatment(int flag)
         exit(0);
     }
 
-    result=(char**)malloc(MAX_LINE*sizeof(char*));
-    for (i=0;i<MAX_LINE;i++)
-    {
-        result[i]=(char *)malloc(50);
-    }
+    result=(data *)malloc(MAX_LINE*sizeof(data));
+    
     //调试模式
     
     if (flag==1)
     {
-        i=0;
+        i=0,j=0;
         file2=fopen("./Minimake_claered.mk","w");
         while(1)
         {
             while (1)
             {
                 p=fgets(str,200,file1);
+                j++;
                 if (p==NULL)
                 {
                     break;
@@ -56,25 +54,26 @@ char** pretreatment(int flag)
             }
             fputs(str,file2);
             printf("%s",str);
-            strcpy(result[i],str);
+            result[i].line=j;
+            strcpy(result[i].linestr,str);
             i++;
         }
-        len=strlen(result[i-1]);
-        printf("debug:len:%d",len);
-        if (result[i-1][len-1]=='\n')
+        len=strlen(result[i-1].linestr);
+        if (result[i-1].linestr[len-1]=='\n')
         {
-            result[i-1][len-1]='\0';
+            result[i-1].linestr[len-1]='\0';
         }
     }
     //非调试模式
     if (flag==0)
     {
-        i=0;
+        i=0,j=0;
         while(1)
         {
             while (1)
             {
                 p=fgets(str,200,file1);
+                j++;
                 if (p==NULL)
                 {
                     break;
@@ -95,13 +94,14 @@ char** pretreatment(int flag)
                 break;
             }
             printf("%s",str);
-            strcpy(result[i],str);
+            result[i].line=j;
+            strcpy(result[i].linestr,str);
             i++;
         }
-        len=strlen(result[i-1]);
-        if (result[i-1][len-1]=='\n')
+        len=strlen(result[i-1].linestr);
+        if (result[i-1].linestr[len-1]=='\n')
         {
-            result[i-1][len-1]='\0';
+            result[i-1].linestr[len-1]='\0';
         }
     }
     
@@ -171,7 +171,7 @@ void clear_markdown(char *str)
     }
 }
 
-int check_static_syntax(char **result)
+int check_static_syntax(data *result)
 {
     int i=0,j=0;
     int count=0;
@@ -226,9 +226,9 @@ int check_static_syntax(char **result)
     return 0;
 }
 
-int is_zhibiao(char **result,int i)
+int is_zhibiao(data *result,int i)
 {
-    if (result[i][0]=='\t')
+    if (result[i].linestr[0]=='\t')
     {
         return 1;
     }
@@ -238,13 +238,13 @@ int is_zhibiao(char **result,int i)
     }
 }
 
-int have_maohao(char **result,int i)
+int have_maohao(data *result,int i)
 {
-    int len=strlen(result[i]);
+    int len=strlen(result[i].linestr);
     int count=0;
     for (int j=0;j<len;j++)
     {
-        if (result[i][j]==':')
+        if (result[i].linestr[j]==':')
         {
             count++;
         }
@@ -252,10 +252,10 @@ int have_maohao(char **result,int i)
     return count;
 }
 
-int is_lastline(char **result,int i)
+int is_lastline(data *result,int i)
 {
-    int len=strlen(result[i]);
-    if(result[i][len-1]!='\n')
+    int len=strlen(result[i].linestr);
+    if(result[i].linestr[len-1]!='\n')
     {
         return 1;
     }
@@ -283,17 +283,10 @@ int printf_lineerror(int line,int errorflag)
     }
 }
 
-void free_result(char **result)
+void free_result(data *result)
 {
     for (int i=0;i<MAX_LINE;i++)
     {
-        free(result[i]);
     }
     free(result);
-}
-nodel *create_nodel(void)
-{
-    nodel *p=(nodel *)malloc(sizeof(nodel));
-    p->next=NULL;
-    return p;
 }
