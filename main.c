@@ -13,6 +13,7 @@ int main(int argc,char *argv[])
     int errorflag=0;
     int line=0;
     struct arraydata *p;
+    int num;
     //判断参数数量是否正确
     // if (argc==1)
     // {
@@ -60,18 +61,18 @@ int main(int argc,char *argv[])
 
     //静态语法检查
     
-    line=check_static_syntax(result,&errorflag);
+    line=check_static_syntax(result);
+
+    p=create_targetdata(result,&num);
+    printf("\ndebug:%d\n",num);
+
+    check_target(p,num);
     
-    printf_lineerror(line,errorflag);
-   
-    if (errorflag)
-    {
-        free_result(result);
-        return 1;
-    }
-    printf("\ndebug:%s\n",result[1]);
-    p=create_data(result);
     sprintf(command,"gcc %s -o %s",p->dependence[0],p->target);
+
+    printf("\ndebug:%s\n",p->target);
+    printf("\ndebug:%s\n",(p+1)->target);
+
     printf("%s",command);
     int a=system(command);
 

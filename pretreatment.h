@@ -9,7 +9,7 @@ int is_emptyline(char *str);
 char** pretreatment(int flag);
 void clear_markdown(char *str);
 void clear_emptytail(char *str);
-int check_static_syntax(char **result,int *errorflag);
+int check_static_syntax(char **result);
 int is_zhibiao(char **result,int i);
 int have_maohao(char **result,int i);
 int is_lastline(char **result,int i);

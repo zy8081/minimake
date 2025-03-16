@@ -6,7 +6,7 @@
 
 char** pretreatment(int flag)
 {
-    FILE *file1=fopen("./Makefile","r");
+    FILE *file1=fopen("./store","r");
     FILE *file2;
     char str[200];
     char *p;
@@ -16,7 +16,7 @@ char** pretreatment(int flag)
     if (file1==NULL)
     {
         printf("Can not find Makefile!\n");
-        return NULL;
+        exit(0);
     }
 
     result=(char**)malloc(MAX_LINE*sizeof(char*));
@@ -60,6 +60,7 @@ char** pretreatment(int flag)
             i++;
         }
         len=strlen(result[i-1]);
+        printf("debug:len:%d",len);
         if (result[i-1][len-1]=='\n')
         {
             result[i-1][len-1]='\0';
@@ -110,7 +111,6 @@ char** pretreatment(int flag)
     
     fclose(file1);
     fclose(file2);
-    printf("123\n");
     return result;
 }
 
@@ -171,7 +171,7 @@ void clear_markdown(char *str)
     }
 }
 
-int check_static_syntax(char **result,int *errorflag)
+int check_static_syntax(char **result)
 {
     int i=0,j=0;
     int count=0;
@@ -184,13 +184,13 @@ int check_static_syntax(char **result,int *errorflag)
     if (flag1==1)
     {
         //command find before rule
-        *errorflag=2;
-        return i+1;
+        printf("\nLine%d:Command found before rule\n",i+1);
+        exit(0);
     }
     if (count!=1)
     {
-        *errorflag=1;
-        return i+1;
+        printf("\nLine%d:Missing colon in target definition\n",i+1);
+        exit(0);
     }
     if (flag2==1)
     {
@@ -213,14 +213,15 @@ int check_static_syntax(char **result,int *errorflag)
         }
         else
         {
-            *errorflag=1;
-            return i+1;
+            printf("\nLine%d:Missing colon in target definition\n",i+1);
+            exit(0);
         }
         flag2=is_lastline(result,i);
         if (flag2==1)
         {
             break;
         }
+        i++;
     }
     return 0;
 }
