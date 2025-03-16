@@ -1,9 +1,10 @@
 #include<stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "parser.h"
+
 #include "pretreatment.h"
-struct arraydata* create_targetdata(char **result,int *num)
+#include "parser.h"
+struct arraydata* create_targetdata(data *result,int *num)
 {
     struct arraydata *p=(struct arraydata *)malloc(sizeof(struct arraydata)*5);
     char str[30]={'\0'};
@@ -11,7 +12,6 @@ struct arraydata* create_targetdata(char **result,int *num)
     int i,j,k;
     int line=1;
     int count=0;
-    int a=0;
     if (p == NULL) 
     {
         printf("内存分配失败\n");
@@ -31,54 +31,65 @@ struct arraydata* create_targetdata(char **result,int *num)
         }
         
 
-        (p+count)->line=line;
+        (p+count)->line=result[line-1].line;
         
-        len=strlen(result[line-1]);
+        len=strlen(result[line-1].linestr);
+
+
         for (i=0;i<len;i++)
         {
-            if (result[line-1][i]==':')
+            if (result[line-1].linestr[i]==':')
             {
                 break;
             }
         }
+
+        
         k=0;
         for (j=i-1;j>=0;j--)
         {
-            if (result[line-1][j]==' '&&k==0)
+            if (result[line-1].linestr[j]==' '&&k==0)
             {
                 continue;
             }
-            if (result[line-1][j]==' '&&k!=0)
+            if (result[line-1].linestr[j]==' '&&k!=0)
             {
                 break;
             }  
-            str[j]=result[line-1][j];
+            str[j]=result[line-1].linestr[j];
             k++;
         }
+
+       
         strcpy((p+count)->target,str+j+1);
         
         (p+count)->count=0;
         j=i+1;
         i=0;
-        while(result[line-1][j]!='\n')
+        
+        while(result[line-1].linestr[j]!='\n'&& result[line-1].linestr[j]!='\0')
         {
             k=0;
 
             for (;;j++)
             {
-                if (result[line-1][j]==' '&&k==0)
+                if (result[line-1].linestr[j]==' '&&k==0)
                 {
                     continue;
                 }
-                if (result[line-1][j]==' '&&k!=0)
+                if (result[line-1].linestr[j]==' '&&k!=0)
                 {
                     break;
                 }
-                if (result[line-1][j]=='\n')
+                if (result[line-1].linestr[j]=='\n')
                 {
                     break;
                 }
-                str[k]=result[line-1][j];
+                if (result[line-1].linestr[j]=='\0')
+                {
+                    break;
+                }
+                str[k]=result[line-1].linestr[j];
                 k++;
             }
             str[k]='\0';
@@ -89,9 +100,6 @@ struct arraydata* create_targetdata(char **result,int *num)
         count++;
         (*num)++;
         printf("num:%d\n",*num);
-        a++;
-        printf("a:%d\n",a);
-        printf("%s\n",result[line-1]);
         printf("count:%d\n",count);
         line++;
     }
@@ -102,7 +110,7 @@ struct arraydata* create_targetdata(char **result,int *num)
 }
 
 
-int find_target(char **result,int startline)
+int find_target(data *result,int startline)
 {
     while(have_maohao(result,startline-1)!=1)
     {
@@ -126,6 +134,25 @@ int check_target(struct arraydata *p,int num)
                 printf("\nLine%d:Duplicate target definition '%s'\n",(p+j)->line,(p+j)->target);
                 exit(0);
             }
+        }
+    }
+    return 0;
+}
+
+int check_dependence(struct arraydata *p,int num)
+{
+    FILE *file;
+    for (int i=0;i<num;i++)
+    {
+        for (int j=0;j<p[i].count;j++)
+        {
+            file=fopen(p[i].dependence[j],"r");
+            if (file==NULL)
+            {
+                printf("\nLine%d: Invalid dependency '%s'\n",p[i].line,p[i].dependence[j]);
+                exit (0);
+            }
+            fclose(file);
         }
     }
     return 0;
