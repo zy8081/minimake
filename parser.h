@@ -1,10 +1,15 @@
+
 struct arraydata
 {
     char target[20];
     char dependence[10][33];
     int count;
-    int line;
+    int oldline;
+    int newline;
+    int runflag;
 };
-struct arraydata* create_targetdata(char **result,int *num);
-int find_target(char **result,int startline);
+
+struct arraydata* create_targetdata(data *result,int *num);
+int find_target(data *result,int startline);
 int check_target(struct arraydata *p,int num);
+int check_dependence(struct arraydata *p,int num);
