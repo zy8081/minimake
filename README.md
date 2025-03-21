@@ -15,6 +15,6 @@
 
 似乎阶段1的任务2的调试模式被我忽略掉了，程序默认的就是调试模式，没有非调试模式，不支持-v的命令行参数。
 
-好像还忘了检查./minimake target中的target是否存在于Makefile文件中了，运行时要保证target是Makefile文件中的目标之一，不然程序会报错误提示：invalid independency '',虽然并非这个错误。但总之这个问题不大。
+好像还忘了检查./minimake target中的target是否存在于Makefile文件中了，运行时要保证target是Makefile文件中的目标之一，不然程序会报错误提示：invalid independency '' ,虽然实际上并非independency的错误。但总之这个问题不大。
 
 3.21事太多，没时间再改了
