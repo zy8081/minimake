@@ -28,10 +28,6 @@ typedef struct node
     struct node *next;
 }node;
 
-typedef struct nodec
-{
-    /* data */
-}nodec;
 
 
 
@@ -45,3 +41,8 @@ void cal_in(graph *grap);
 vernode *create_nodelist(graph *grap);
 void tuopu_sort(graph *grap,vernode *p,char **name);
 void run_command(char **name,int namenum,struct arraydata *p,int arraynum,data *result);
+int check_dependence(vernode *p,graph *grap);
+void check_filetime(time_t *t,int num,char **name);
+int find_fisrt_command(char *argv[],struct arraydata *p,int num);
+void free_name(char **name,graph *grap);
+void free_vernode(vernode *p,graph *grap);

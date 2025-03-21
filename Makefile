@@ -1,2 +1,4 @@
-minimake: main.c pretreatment.c parser.c assistfun.c graph.c
-	gcc -o minimake main.c pretreatment.c parser.c assistfun.c graph.c
+minimake: main.c pretreatment.c parser.c graph.c assistfun.c
+	gcc -o minimake main.c pretreatment.c parser.c graph.c assistfun.c
+
+

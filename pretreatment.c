@@ -15,7 +15,7 @@ target2:dep3 dep4\n\0
 */
 data* pretreatment(int flag)
 {
-    FILE *file1=fopen("./store","r");
+    FILE *file1=fopen("./Makefile","r");
     FILE *file2;
     char str[200];
     char *p;

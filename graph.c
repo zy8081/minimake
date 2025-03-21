@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <sys/stat.h>
 #include "pretreatment.h"
 #include "parser.h"
 #include "graph.h"
@@ -58,7 +60,7 @@ void init_graph(graph *grap,struct arraydata *p,int totalnum,int comline)
 
     for (int i=0;i<p[comline-1].count;i++)
     {
-        printf("count:%d\n",p[comline-1].count);
+        //printf("count:%d\n",p[comline-1].count);
         
         /*
         如果有一点从未并创建，就创建 并赋值依赖关系
@@ -78,7 +80,7 @@ void init_graph(graph *grap,struct arraydata *p,int totalnum,int comline)
         */
         else if(grap->matrix[x][y]==1)
         {
-            printf("debug：%d %d\n",x,y);
+            //printf("debug：%d %d\n",x,y);
             continue;
         }
         
@@ -123,7 +125,7 @@ int dep_to_target(graph *grap,struct arraydata *p,int totalnum,char *target)
 
     for (int j=0;j<p[i].count;j++)
     {
-        printf("count:%d\n",p[i].count);
+        //printf("count:%d\n",p[i].count);
 
          /*
         如果有一点从未并创建，就创建 并赋值依赖关系
@@ -181,7 +183,7 @@ void print_graph_matrix(graph *grap)
     printf("\n");
     for (int i=0;i<grap->vertex_num;i++)
     {
-        printf("%d\t",grap->vertex[i].in);
+        printf("%d ",grap->vertex[i].in);
     }
     printf("\n");
     for (int i=0;i<grap->vertex_num;i++)
@@ -192,7 +194,7 @@ void print_graph_matrix(graph *grap)
         }
         printf("\n");
     }
-    printf("\nvertex_num: %d\n",grap->vertex_num);
+    printf("vertex_num: %d\n\n",grap->vertex_num);
 }
 
 void cal_in(graph *grap)
@@ -276,27 +278,61 @@ void tuopu_sort(graph *grap,vernode *p,char **name)
             break;
         }
     }
+    
 }
 
 void run_command(char **name,int namenum,struct arraydata *p,int arraynum,data *result)
 {
-    int x;
+    
+    struct stat st;
+    time_t t[namenum];
+    time_t now = time(NULL);
+    // stat("1.o",&st);
+    // t[0]=st.st_atime;
+    // t[1]=st.st_mtime;
+    // t[2]=st.st_ctime;
+    // printf("%s",ctime(&t[0]));
+    // printf("%s",ctime(&t[1]));
+    // printf("%s",ctime(&t[2]));
+
+
+    for (int i=0;i<namenum;i++)
+    {
+        //printf("%s\n",name[i]);
+        stat(name[i],&st);
+        t[i]=st.st_mtime;
+        //printf("%s",ctime(&t[i]));
+    }
+    //printf("\n");
+    
+    //check_filetime(t,namenum,name);
     for (int i=0;i<namenum;i++)
     {
         
         for (int j=0;j<arraynum;j++)
         {
+            for (int i=0;i<namenum;i++)
+            {
+        
+                stat(name[i],&st);
+                t[i]=st.st_mtime;
+        
+            }
             if (strcmp(name[i],p[j].target)==0 && p[j].runflag==0)
             {
 
                 int temp=0;
+                int timeflag=0;
                 for (int k=0;k<p[j].count;k++)
                 {
                     for (int l=0;l<i;l++)
                     {
                         if (strcmp(p[j].dependence[k],name[l])==0)
                         {
-                            
+                            if (t[l]<=t[i] && t[i]!=-1 )
+                            {
+                                timeflag++;
+                            } 
                             temp++;
                             break;
                         }
@@ -304,23 +340,32 @@ void run_command(char **name,int namenum,struct arraydata *p,int arraynum,data *
                 }
                 if (temp==p[j].count)
                 {
-                    printf("\ndebug2: %s\n",result[p[j].newline-1].linestr);
+                    //printf("\ndebug2: %s\n",result[p[j].newline-1].linestr);
                     p[j].runflag=1;
+
+                    if(timeflag==p[j].count)
+                    {
+                        printf("'%s' is the newest\n",p[j].target);
+                        continue;
+                    }
+
                     if (j<arraynum-1)
                     {
                         for (int k=p[j].newline;k<p[j+1].newline-1;k++)
                         {
                             system((result[k].linestr)+1);
+                            printf("%s",(result[k].linestr)+1);
                         }
                     }
                     else
                     {
-                        x=p[j].newline;
+                        int x=p[j].newline;
                         while (!is_lastline(result,x-1))
                         {
                             if (!is_lastline(result,x))
                             {
                                 system((result[x].linestr)+1);
+                                printf("%s",(result[x].linestr)+1);
                                 x++;
                             }
                             else
@@ -331,6 +376,7 @@ void run_command(char **name,int namenum,struct arraydata *p,int arraynum,data *
                         if (result[x].linestr[0]==9)
                         {
                             system((result[x].linestr)+1);
+                            printf("%s",(result[x].linestr)+1);
                         }
                         
                     }
@@ -340,4 +386,75 @@ void run_command(char **name,int namenum,struct arraydata *p,int arraynum,data *
             }
         }
     }
+}
+
+
+
+int check_dependence(vernode *p,graph *grap)
+{
+    FILE *file;
+    for (int i=0;i<grap->vertex_num;i++)
+    {
+        if (p[i].in==0)
+        {
+            file=fopen(grap->vertex[p[i].index].name,"r");
+            if (file==NULL)
+            {
+                printf("Invalid dependency '%s'",grap->vertex[p[i].index].name);
+                exit(0);
+            }
+            fclose(file);
+        }
+    }
+    return 0;
+}
+
+void check_filetime(time_t *t,int num,char **name)
+{
+    struct stat st;
+    for (int i=0;i<num;i++)
+    {
+        stat(name[i],&st);
+        t[i]=st.st_mtime;
+    }
+}
+
+
+int find_fisrt_command(char *argv[],struct arraydata *p,int num)
+{
+    int i=0;
+    for (i=0;i<num;i++)
+    {
+        if(strcmp(argv[1],p[i].target)==0)
+        {
+            
+            break;
+        }
+    }
+    return i+1;
+}
+
+void free_name(char **name,graph *grap)
+{
+    for (int i=0;i<grap->vertex_num;i++)
+    {
+        free(name[i]);
+    }
+    free(name);
+}
+
+void free_vernode(vernode *p,graph *grap)
+{
+    for (int i=0;i<grap->vertex_num;i++)
+    {
+        node *temp1=p[i].next;
+        node *temp2=temp1;
+        while (temp2!=NULL)
+        {
+            temp2=temp2->next;
+            free(temp1);
+            temp1=temp2;
+        }
+    }
+    free(p);
 }

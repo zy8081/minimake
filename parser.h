@@ -12,4 +12,4 @@ struct arraydata
 struct arraydata* create_targetdata(data *result,int *num);
 int find_target(data *result,int startline);
 int check_target(struct arraydata *p,int num);
-int check_dependence(struct arraydata *p,int num);
+

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "pretreatment.h"
 #include "parser.h"
+#include "graph.h"
 
 void judge_parameters(int argc)
 {
@@ -39,7 +40,7 @@ void judge_help(char *str,char *argv[])
             printf("Command not defined!\n");
             exit(0);
         }
-       
+        
     }
 }
 
@@ -66,3 +67,14 @@ void make_command(char *command,char *argv[],struct arraydata *p,int num)
         strcat(command,p[i].dependence[j]);
     }
 }
+
+char **create_vertex_name(graph *grap)
+{
+    char **name=(char **)malloc(sizeof(char *)*grap->vertex_num);
+    for (int i=0;i<grap->vertex_num;i++)
+    {
+        name[i]=(char *)malloc(sizeof(33));
+    }
+    return name;
+}
+    

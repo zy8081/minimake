@@ -6,7 +6,7 @@
 #include "parser.h"
 
 
-//提取目标行：目标行上限：5 依赖上限：10
+//提取目标行：目标行上限：20     单个目标行依赖上限：10
 //将所有目标行存储在p指向的数组里，num是目标行数
 /*p的结构样例
 p[0]:target1  dep1  dep2  count=2  line=1
@@ -14,7 +14,7 @@ p[1]:target2  dep3  dep4  dep5 count=3 line=4
 */
 struct arraydata* create_targetdata(data *result,int *num)
 {
-    struct arraydata *p=(struct arraydata *)malloc(sizeof(struct arraydata)*5);
+    struct arraydata *p=(struct arraydata *)malloc(sizeof(struct arraydata)*20);
     char str[30]={'\0'};
     int len;
     int i,j,k;
@@ -142,25 +142,6 @@ int check_target(struct arraydata *p,int num)
                 printf("\nLine%d:Duplicate target definition '%s'\n",(p+j)->oldline,(p+j)->target);
                 exit(0);
             }
-        }
-    }
-    return 0;
-}
-
-int check_dependence(struct arraydata *p,int num)
-{
-    FILE *file;
-    for (int i=0;i<num;i++)
-    {
-        for (int j=0;j<p[i].count;j++)
-        {
-            file=fopen(p[i].dependence[j],"r");
-            if (file==NULL)
-            {
-                printf("\nLine%d: Invalid dependency '%s'\n",p[i].oldline,p[i].dependence[j]);
-                exit (0);
-            }
-            fclose(file);
         }
     }
     return 0;
